@@ -3,6 +3,6 @@
 
 class MyUtil {
     public:
-        static char* aMayus(char * palabra);
+        static char* aLower(char * palabra);
 };
 #endif

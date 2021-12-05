@@ -10,8 +10,8 @@ void Disco::makedisk (char ** command, int num)
 {
     MKDISK_PARAM * mk = (MKDISK_PARAM *)malloc(sizeof(MKDISK_PARAM));
     mk -> size = 0;
-    mk -> f = "FF";
-    mk -> u = "M";
+    mk -> f = "ff";
+    mk -> u = "m";
 
     std::string para;
     std::string aux;
@@ -21,37 +21,39 @@ void Disco::makedisk (char ** command, int num)
     //este for es modelo de como se lleva a cabo el reconocimiento de opciones del comando
     for (int i = 2; i < num; i++){
         size_t pos = 0;
-        para = std::string(MyUtil::aMayus(command[i]));
+        para = std::string(MyUtil::aLower(command[i]));
         pos = para.find(delimiter);
         token = para.substr(0, pos);
         para.erase(0, pos + delimiter.length());
 
-        if (token == "-PATH"){
+        if (token == "-path"){
             mk -> path = para;
 
-        }else if (token == "-SIZE"){
+        }else if (token == "-size"){
             mk -> size = stoi(para);
 
-        }else if (token == "-U"){
-            if(para != "K" && para != "M"){ 
-                std::cout << "ERROR: valor de parametro erroneo -> "<< aux << "\n";
+        }else if (token == "-unit"){
+            if(para != "k" && para != "m"){ 
+                std::cout << "ERROR: valor de parametro erroneo -> "<< para << "\n";
                 return;
             }
             mk -> u = para;
 
-        }else if (token == "-F"){
-            if(aux != "BF" && aux != "FF" && aux != "WF"){ 
-                std::cout << "ERROR: valor de parametro erroneo -> "<< aux << "\n";
+        }else if (token == "-fit"){
+            if(para != "bf" && para != "ff" && para != "wf"){ 
+                std::cout << "ERROR: valor de parametro erroneo -> "<< para << "\n";
                 return;
             }
             mk -> f= para;
 
+        }else{
+            printf("tipo de parametro desconocido");
         }
     
     }
     //se verifican los obligatorios
-    if(mk -> size == 0 || mk -> path.empty()){
-        printf("ERROR: parametros necesarios inexistentes");
+    if(mk -> size == 0 && mk -> path.empty()){
+        printf("ERROR: parametros necesarios inexistentes\n");
         return;
     }
 
@@ -79,7 +81,12 @@ void Disco::createDir (MKDISK_PARAM *mk)
 
 void Disco::createFile (MKDISK_PARAM *mk)
 {
-    //mbr mbrdisk;
+    //creacion de informacion del mbr
+    mbr *mbrdisk = (mbr *)malloc(sizeof(mbr));
+    mbrdisk->mbr_disk_signature = (rand()%100);
+    mbrdisk->disk_fit = mk->f[0];
+    mbrdisk->hora = time(0);
+    //inicio escritura del archivo
     FILE *arch;
     arch= fopen(mk->path.c_str(), "wb");
 
@@ -88,25 +95,74 @@ void Disco::createFile (MKDISK_PARAM *mk)
     char buffer[1024];
     for(int i = 0 ; i < 1024 ; i++){
             buffer[i] = '\0';
-        }
-    if (mk->u == "K"){
+    }
+    if (mk->u == "k"){
         //descripcion del disco mbr
+        mbrdisk -> size = mk ->size * 1024;
         for(int i = 0; i < (mk->size); i++){
-            fwrite(&buffer, 1024, 1, arch);
+            fwrite(buffer, 1024, 1, arch);
         }
         fclose(arch);
     }
-    else if (mk->u == "M"){
+    else if (mk->u == "m"){
         //descripcion del disco mbr
+        mbrdisk -> size = mk ->size * 1024 * 1024;
         for(int i = 0; i < (mk->size*1024); i++){
-            fwrite(&buffer, 1024, 1, arch);
+            fwrite(buffer, 1024, 1, arch);
         }
         fclose(arch);
     }
+    
+    partition *particionVacia = (partition *)malloc(sizeof(partition));
+    particionVacia->part_status = 'i';
+    particionVacia->part_type = '-';
+    particionVacia->part_fit = '-';
+    particionVacia->part_start = 0;
+    particionVacia->part_size = 0;
+    strcpy(particionVacia->part_name ,"ja");
+
+    mbrdisk -> mbr_partition_1 = particionVacia;
+    mbrdisk -> mbr_partition_2 = particionVacia;
+    mbrdisk -> mbr_partition_3 = particionVacia;
+    mbrdisk -> mbr_partition_4 = particionVacia;
+    //escritura en disco del mbr
+    arch= fopen(mk->path.c_str(), "rb+");
+
+    if(arch !=NULL){
+        fseek(arch,0,SEEK_SET);
+        fwrite(mbrdisk, sizeof(mbr), 1,arch);
+        fclose(arch);
+        printf("disco creado xdxdxd \n");
+    }else{
+        printf("ERROR: No se puede generar el disoc\n");
+    }
+    printf("proceso terminado\n");
 
 }
 
-void Disco::removedisk (char** path, int num)
+void Disco::removedisk (char** command, int num)
 {
-    return;
+    std::string para;
+    std::string aux;
+    std::string token;
+    std::string delimiter = "~:~";
+
+    for (int i = 2; i < num; i++){
+        size_t pos = 0;
+        para = std::string(MyUtil::aLower(command[i]));
+        pos = para.find(delimiter);
+        token = para.substr(0, pos);
+        para.erase(0, pos + delimiter.length());
+
+        if (token == "-path"){
+            aux = para;
+        } else {
+            std::cout << "ERROR: parametro no permitido\n";
+            return;
+        }
+    }
+    std::string filerem = "rm -i " + para;
+    system(filerem.c_str());
+    printf("disco eliminado exitosamente\n");
+    
 }

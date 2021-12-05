@@ -1,0 +1,1 @@
+./main mkdisk -path~:~/home/allvides/mia/disco.dk -size~:~10 -unit~:~m -fit~:~WF

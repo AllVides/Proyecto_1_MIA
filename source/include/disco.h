@@ -1,20 +1,7 @@
-#ifndef __CREARDISCO_H__
-#define __CREARDISCO_H__
+#ifndef __DISCO_H__
+#define __DISCO_H__
 #include <string>
 #include <iostream>
-
-typedef struct mbr {
-        int size;
-        time_t hora;
-        int mbr_disk_signature;
-        //char* disk_fit;
-        //partition mbr_partition_1;
-        //partition mbr_partition_2;
-        //partition mbr_partition_3;
-        //partition mbr_partition_4;
-
-        /* Otros commandos a implementar */
-    } mbr;
 
 typedef struct partition {
         char part_status;
@@ -22,12 +9,27 @@ typedef struct partition {
         char part_fit;
         int part_start;
         int part_size;
-        int part_name;
+        char part_name[16];
     } partition;
+
+
+typedef struct mbr {
+        int size;
+        time_t hora;
+        int mbr_disk_signature;
+        char disk_fit;
+        partition* mbr_partition_1;
+        partition* mbr_partition_2;
+        partition* mbr_partition_3;
+        partition* mbr_partition_4;
+
+        /* Otros commandos a implementar */
+    } mbr;
+
 
 class Disco{
     public:
-    typedef struct tagCOMMAND {
+    typedef struct MKDISK_PARAM {
         std::string path;
         int size;
         std::string f;
