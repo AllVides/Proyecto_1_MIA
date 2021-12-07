@@ -4,7 +4,7 @@
 #include <iostream>
 
 typedef struct partition {
-        char part_status;
+        int part_status;
         char part_type;
         char part_fit;
         int part_start;
@@ -18,14 +18,14 @@ typedef struct mbr {
         time_t hora;
         int mbr_disk_signature;
         char disk_fit;
-        partition* mbr_partition_1;
-        partition* mbr_partition_2;
-        partition* mbr_partition_3;
-        partition* mbr_partition_4;
+        partition mbr_partition[4];
 
         /* Otros commandos a implementar */
     } mbr;
 
+
+    void displaymbr(mbr* cosa);
+    void displaypart(partition part);
 
 class Disco{
     public:

@@ -13,8 +13,8 @@ class Formato{
         std::string f;
         std::string u;
         std::string type;
-        bool borrar;
-        bool agregar;
+        std::string borrar;
+        int agregar;
         std::string name;
 
 
@@ -22,7 +22,9 @@ class Formato{
     } FDISK_PARAM;
 
     void formatdisk (char ** command, int num);
-    void obtenerMBR (FDISK_PARAM *mk);
+    mbr* obtenerMBR (FDISK_PARAM *mk);
+    void definepart (mbr * disk, FDISK_PARAM* mk);
+
     //void createFile (MKDISK_PARAM *mk);
 
 };

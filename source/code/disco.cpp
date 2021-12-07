@@ -91,7 +91,10 @@ void Disco::createFile (MKDISK_PARAM *mk)
     arch= fopen(mk->path.c_str(), "wb");
 
     if (arch == NULL)
+    {
+        printf("archivo inexistente, y llegaste a un lugar raro");
         exit(1);
+    }
     char buffer[1024];
     for(int i = 0 ; i < 1024 ; i++){
             buffer[i] = '\0';
@@ -113,18 +116,18 @@ void Disco::createFile (MKDISK_PARAM *mk)
         fclose(arch);
     }
     
-    partition *particionVacia = (partition *)malloc(sizeof(partition));
-    particionVacia->part_status = 'i';
-    particionVacia->part_type = '-';
-    particionVacia->part_fit = '-';
-    particionVacia->part_start = 0;
-    particionVacia->part_size = 0;
-    strcpy(particionVacia->part_name ,"ja");
+    partition particionVacia;
+    particionVacia.part_status = 0;
+    particionVacia.part_type = '-';
+    particionVacia.part_fit = '-';
+    particionVacia.part_start = 0;
+    particionVacia.part_size = 0;
+    strcpy(particionVacia.part_name ,"ja");
 
-    mbrdisk -> mbr_partition_1 = particionVacia;
-    mbrdisk -> mbr_partition_2 = particionVacia;
-    mbrdisk -> mbr_partition_3 = particionVacia;
-    mbrdisk -> mbr_partition_4 = particionVacia;
+    for( int i = 0; i < 4; i++){
+        mbrdisk -> mbr_partition[i] = particionVacia;
+    }
+    
     //escritura en disco del mbr
     arch= fopen(mk->path.c_str(), "rb+");
 
@@ -132,6 +135,7 @@ void Disco::createFile (MKDISK_PARAM *mk)
         fseek(arch,0,SEEK_SET);
         fwrite(mbrdisk, sizeof(mbr), 1,arch);
         fclose(arch);
+        displaymbr(mbrdisk);
         printf("disco creado xdxdxd \n");
     }else{
         printf("ERROR: No se puede generar el disoc\n");
@@ -165,4 +169,25 @@ void Disco::removedisk (char** command, int num)
     system(filerem.c_str());
     printf("disco eliminado exitosamente\n");
     
+}
+
+void displaymbr (mbr *cosa){
+    std::cout<< cosa->disk_fit<<"\n";
+    std::cout<< asctime(localtime(&cosa->hora));
+    std::cout<< cosa->mbr_disk_signature<<"\n";
+    std::cout<< cosa->size<<"\n";
+    for( int i = 0; i < 4; i++){
+        displaypart(cosa -> mbr_partition[i]);
+    }
+    
+}
+
+void displaypart (partition part)
+{
+    std::cout << part.part_status <<"\n";
+    std::cout <<part.part_type <<"\n";
+    std::cout <<part.part_fit <<"\n";
+    std::cout <<part.part_start <<"\n";
+    std::cout <<part.part_size <<"\n";
+    std::cout <<part.part_name <<"\n";
 }

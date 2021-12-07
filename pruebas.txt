@@ -1,1 +1,3 @@
 ./main mkdisk -path~:~/home/allvides/mia/disco.dk -size~:~10 -unit~:~m -fit~:~WF
+./main rmdisk -path~:~/home/allvides/mia/disco.dk
+./main fdisk -Size~:~300 -path~:~/home/allvides/mia/disco.dk -name~:~Particion1

@@ -14,8 +14,8 @@ void Formato::formatdisk (char ** command, int num)
     mk -> f = "wf";
     mk -> u = "k";
     mk -> type = "p";
-    mk -> borrar = false;
-    mk -> agregar = false;
+    mk -> borrar = "";
+    mk -> agregar = 0;
 
     std::string para;
     std::string token;
@@ -57,16 +57,21 @@ void Formato::formatdisk (char ** command, int num)
             mk -> type = para;
 
         }else if (token == "-delete"){//pendiente de modificar
-            mk -> borrar= true;
+            if(para != "fast" && para != "full"){ 
+                std::cout << "ERROR: valor de parametro erroneo -> "<< para << "\n";
+                return;
+            }
+            mk -> borrar= para;
+
 
         }else if (token == "-name"){//pendiente de modificar
             mk -> name= para;
 
         }else if (token == "-add"){//pendiente de modificar
-            mk -> agregar= true;
+            mk -> agregar= stoi(para);
 
         }else{
-            printf("parametro no reconocido");
+            std::cout << "parametro no reconocido "<< token << "\n";
         }
     
     }
@@ -76,6 +81,46 @@ void Formato::formatdisk (char ** command, int num)
         return;
     }
 
-
+    obtenerMBR ( mk );
     
+}
+
+mbr* Formato::obtenerMBR (FDISK_PARAM * mk)
+{
+    mbr *diskmbr = (mbr *)malloc(sizeof(mbr));
+    FILE *arch;
+    arch= fopen(mk->path.c_str(), "rb");
+    if (arch == NULL)
+        exit(1);
+    fseek(arch, 0, SEEK_SET);
+    fread(diskmbr, sizeof(mbr), 1, arch);
+
+    //displaymbr(diskmbr);
+    return diskmbr;
+}
+
+void Formato::definepart (mbr * disk, FDISK_PARAM * mk)
+{
+    if ( mk -> agregar && mk->borrar.empty()){//parte para agregar
+        bool p_existe = false;
+        bool p_ext_existe = false;
+        int p_posicion;
+        for( int i = 0; i < 4; i++){
+            if(disk -> mbr_partition[i].part_name == mk ->name){
+                p_existe = true;
+                p_posicion = i;
+                break;
+            }
+        }
+        if ( p_existe){
+
+        }
+
+
+    } else if ( !mk -> agregar && !mk->borrar.empty()){//parte para borrar
+
+    }else{
+        printf("comando add o delete no reconocido\n");
+    }
+
 }
