@@ -171,7 +171,25 @@ void Disco::removedisk (char** command, int num)
     
 }
 
+void escribirmbr (mbr *mbrdisk , std::string path){
+    //escritura en disco del mbr
+    FILE *arch;
+    arch= fopen(path.c_str(), "rb+");
+
+    if(arch !=NULL){
+        fseek(arch,0,SEEK_SET);
+        fwrite(mbrdisk, sizeof(mbr), 1,arch);
+        fclose(arch);
+        displaymbr(mbrdisk);
+        printf("mbr escrito xdxdxd \n");
+    }else{
+        printf("ERROR: No se puede generar el disoc\n");
+    }
+    printf("proceso terminado\n");
+}
+
 void displaymbr (mbr *cosa){
+    std::cout << sizeof(mbr)<<"\n";
     std::cout<< cosa->disk_fit<<"\n";
     std::cout<< asctime(localtime(&cosa->hora));
     std::cout<< cosa->mbr_disk_signature<<"\n";

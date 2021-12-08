@@ -26,6 +26,7 @@ typedef struct mbr {
 
     void displaymbr(mbr* cosa);
     void displaypart(partition part);
+    void escribirmbr (mbr* mbrdisk, std::string path);
 
 class Disco{
     public:

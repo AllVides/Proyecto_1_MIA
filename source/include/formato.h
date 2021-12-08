@@ -4,6 +4,12 @@
 #include <iostream>
 #include "./disco.h"
 
+typedef struct espaciodis {
+    int inicio;
+    int size;
+}espaciodis;
+
+void freespace (mbr * disk, espaciodis blancos[]);
 
 class Formato{
     public:
