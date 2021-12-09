@@ -7,9 +7,12 @@
 typedef struct espaciodis {
     int inicio;
     int size;
+    static bool order(const espaciodis& a,const espaciodis& b) { return a.inicio < b.inicio; }
 }espaciodis;
 
 void freespace (mbr * disk, espaciodis blancos[]);
+void freespace (int inicio, int size, espaciodis blancos[]);
+void verlibre (espaciodis aux[]);
 
 class Formato{
     public:
@@ -30,6 +33,7 @@ class Formato{
     void formatdisk (char ** command, int num);
     mbr* obtenerMBR (FDISK_PARAM *mk);
     void definepart (mbr * disk, FDISK_PARAM* mk);
+    void definelogic (mbr * disk, FDISK_PARAM* mk);
 
     //void createFile (MKDISK_PARAM *mk);
 

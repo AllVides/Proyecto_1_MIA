@@ -180,7 +180,7 @@ void escribirmbr (mbr *mbrdisk , std::string path){
         fseek(arch,0,SEEK_SET);
         fwrite(mbrdisk, sizeof(mbr), 1,arch);
         fclose(arch);
-        displaymbr(mbrdisk);
+        //displaymbr(mbrdisk);
         printf("mbr escrito xdxdxd \n");
     }else{
         printf("ERROR: No se puede generar el disoc\n");

@@ -9,6 +9,7 @@ typedef struct partition {
         char part_fit;
         int part_start;
         int part_size;
+        int part_next = -1;
         char part_name[16];
     } partition;
 
