@@ -293,7 +293,7 @@ void Formato::definepart (mbr * disk, FDISK_PARAM * mk)
         }
         disk -> mbr_partition[posicion].part_size = 0;
         disk -> mbr_partition[posicion].part_start = 0;
-        strcpy(disk -> mbr_partition[posicion].part_name ,"jaja");
+        strcpy(disk -> mbr_partition[posicion].part_name ,"ja");
         disk -> mbr_partition[posicion].part_type = '-';
         if (mk -> borrar == "fast"){
              std::cout << "fast delete\n";
@@ -303,7 +303,9 @@ void Formato::definepart (mbr * disk, FDISK_PARAM * mk)
             arch= fopen(mk->path.c_str(), "rb+");
             fseek(arch,disk -> mbr_partition[posicion].part_start,SEEK_SET);
             char n = '\0';
-            fwrite(&n, disk -> mbr_partition[posicion].part_size, 1,arch);
+            for ( int i = 0; i < disk -> mbr_partition[posicion].part_size; i++){
+                fwrite(&n, sizeof(n), 1,arch);
+            }
             fclose(arch);
 
         }
@@ -322,15 +324,15 @@ void Formato::definelogic (mbr * disk, FDISK_PARAM* mk){
         bool p_existe = false;
         int pos = -1;
         for( int i = 0; i < 4; i++){//revisamos si exite la particion a crear
-            if(disk -> mbr_partition[i].part_name == mk ->name){
+            if(disk -> mbr_partition[i].part_type == 'e'){
                 p_existe = true;
                 pos = i;
                 break;
             }
         }
         
-        if(disk -> mbr_partition[pos].part_type != 'e'){
-            std::cout << "la particion no es extendida\n";
+        if(!p_existe){
+            std::cout << "no existe particion extendida\n";
             return;
         }
         int start = disk -> mbr_partition[pos].part_start;
@@ -347,7 +349,7 @@ void Formato::definelogic (mbr * disk, FDISK_PARAM* mk){
             nueva.part_status = 0;
             nueva.part_type = mk->type[0];
             nueva.part_fit = mk->f[0];
-            nueva.part_start = start;
+            nueva.part_start = start+sizeof(partition)+1;
             strcpy(nueva.part_name ,mk->name.c_str());
             nueva.part_size = mk->size;
             nueva.part_next = -1;
@@ -360,6 +362,7 @@ void Formato::definelogic (mbr * disk, FDISK_PARAM* mk){
         }
         else
         {
+            int startlogic = start;
             while ( fread(&logica, sizeof(partition), 1, arch)){
                 if ( logica.part_next == -1){
                     int sig = logica.part_start + logica.part_size;
@@ -368,64 +371,91 @@ void Formato::definelogic (mbr * disk, FDISK_PARAM* mk){
                         std::cout << "particion logica excede el espacio permitido\n";
                         return;
                     } 
+                    logica.part_next = sig +1;
+                    fwrite(&logica, sizeof(partition), 1,arch);
+                    fseek(arch, logica.part_next, SEEK_SET);
+                    partition nueva;
+                    nueva.part_status = 0;
+                    nueva.part_type = mk->type[0];
+                    nueva.part_fit = mk->f[0];
+                    nueva.part_start = sig+1+sizeof(partition);
+                    strcpy(nueva.part_name ,mk->name.c_str());
+                    nueva.part_size = mk->size;
+                    nueva.part_next = -1;
+                    fwrite(&nueva, sizeof(partition), 1,arch);
+                    fclose(arch);
+                    std::cout << "particion logica creada\n";
+                    return;
 
-
-                }else if (logica.part_size == 0) {//im sure the size is wrong
-                    int sig = logica.part_start + logica.part_next;
-                    int sig_size = sig + 1 + mk ->size + sizeof(partition);
-                    if ( sig_size > fin){
+                }else if (logica.part_size == 0) {//what am i tryin' to do???
+                    int limlibre = logica.part_next;
+                    int sig_size = logica.part_start+ mk ->size + sizeof(partition)+1;
+                    if ( sig_size >= limlibre || sig_size >= logica.part_next){
+                        startlogic = logica.part_next;
                         fseek(arch, logica.part_next, SEEK_SET);
                         continue;
                     } 
-                }else{
+                    logica.part_status = 0;
+                    logica.part_type = mk->type[0];
+                    strcpy(logica.part_name ,mk->name.c_str());
+                    logica.part_fit = mk->f[0];
+                    logica.part_size = mk->size;
+                    fwrite(&logica, sizeof(partition), 1,arch);
+                    fclose(arch);
+                    std::cout << "particion logica creada\n";
+                    return;
+                } else{
+                    startlogic = logica.part_next;
                     fseek(arch, logica.part_next, SEEK_SET);
                 }
             }
         }
+        std::cout << "no existe la particion logica\n";
 
     }
     else if ( mk -> agregar && mk->borrar.empty()){//ADD:cambiar a logica
         bool p_existe = false;
-        int posicion = 0;
+        int pos = -1;
         for( int i = 0; i < 4; i++){//revisamos si exite la particion a crear
-            if(disk -> mbr_partition[i].part_name == mk ->name){
+            if(disk -> mbr_partition[i].part_type == 'e'){
                 p_existe = true;
-                posicion = i;
+                pos = i;
                 break;
-            }
-
-        }
-        if ( !p_existe){
-            std::cout << "particion inexistente\n";
-            return;
-        }
-        espaciodis n[6];
-        freespace(disk, n); 
-        //confirmar si se remueve un valor o se agrega
-        std::cout << "estas en add\n";
-        int finpart = (disk ->mbr_partition[posicion].part_start + disk ->mbr_partition[posicion].part_size);
-        for( int i = 0; i < 6; i++){
-            if (mk -> agregar > 0 ){ //es positivo se agrega espacio si existe espacio libre mayor a la cantidad a agregar
-                if( finpart > n[i].inicio && mk ->agregar < n[i].size){
-                    disk ->mbr_partition[posicion].part_size = mk ->agregar + disk ->mbr_partition[posicion].part_size;
-                    std::cout << "agregando valor"<< mk->agregar<<"\n";
-                    break;
-                }
-            } else if (mk -> agregar < 0 ) { //es negativo se retira espacio si no deja vacia la particion
-                if( (disk ->mbr_partition[posicion].part_size +  mk ->agregar) > 0){
-                    disk ->mbr_partition[posicion].part_size = mk ->agregar + disk ->mbr_partition[posicion].part_size;
-                    std::cout << "reduciendo valor"<< mk->agregar<<"\n";
-                    break;
-                }
-            } else {
-                std::cout << "no puede ser cero\n";
             }
         }
         
-        escribirmbr(disk, mk->path.c_str());
-        std::cout << "add completado\n";
-        return;
-
+        if(!p_existe){
+            std::cout << "no existe particion extendida\n";
+            return;
+        }
+        int start = disk -> mbr_partition[pos].part_start;
+        int fin = disk -> mbr_partition[pos].part_size + start;
+        FILE *arch;
+        arch= fopen(mk->path.c_str(), "rb+");
+        fseek(arch, start, SEEK_SET);
+        partition logica;
+        int startlogic = start;
+        while ( fread(&logica, sizeof(partition), 1, arch)){
+                if ( logica.part_name == mk ->name){
+                    int newsize = logica.part_size + logica.part_start + mk ->agregar;
+                    if ( newsize >= logica.part_next){
+                        std::cout << "particion logica excede el espacio permitido\n";
+                        return;
+                    } else if ( newsize <= 0){
+                        std::cout << "particion logica menor al espacio permitido\n";
+                        return;
+                    }
+                    logica.part_size = logica.part_size + mk ->agregar;
+                    fwrite(&logica, sizeof(partition), 1,arch);
+                    fclose(arch);
+                    std::cout << "particion logica modificada\n";
+                    return;
+                } else{
+                    startlogic = logica.part_next;
+                    fseek(arch, logica.part_next, SEEK_SET);
+                }
+        }
+        std::cout << "no existe la particion logica\n";
     } 
     else if ( !mk -> agregar && !mk->borrar.empty()){//REMOVE: cambiar a logica
         while ( true ){
@@ -440,38 +470,52 @@ void Formato::definelogic (mbr * disk, FDISK_PARAM* mk){
         
 
         bool p_existe = false;
-        int posicion = 0;
-        for( int i = 0; i < 4; i++){//revisamos si exite la particion a expandir
-            if(disk -> mbr_partition[i].part_name == mk ->name){
+        int pos = -1;
+        for( int i = 0; i < 4; i++){//revisamos si exite la particion a crear
+            if(disk -> mbr_partition[i].part_type == 'e'){
                 p_existe = true;
-                posicion = i;
+                pos = i;
                 break;
             }
         }
-        if ( !p_existe){
-            std::cout << "particion inexistente\n";
+        
+        if(!p_existe){
+            std::cout << "no existe particion extendida\n";
             return;
         }
-        disk -> mbr_partition[posicion].part_size = 0;
-        disk -> mbr_partition[posicion].part_start = 0;
-        strcpy(disk -> mbr_partition[posicion].part_name ,"jaja");
-        disk -> mbr_partition[posicion].part_type = '-';
-        if (mk -> borrar == "fast"){
-             std::cout << "fast delete\n";
-        }else if (mk -> borrar == "full"){
-            std::cout << "full delete\n";
-            FILE *arch;
-            arch= fopen(mk->path.c_str(), "rb+");
-            fseek(arch,disk -> mbr_partition[posicion].part_start,SEEK_SET);
-            char n = '\0';
-            fwrite(&n, disk -> mbr_partition[posicion].part_size, 1,arch);
-            fclose(arch);
-
+        int start = disk -> mbr_partition[pos].part_start;
+        int fin = disk -> mbr_partition[pos].part_size + start;
+        FILE *arch;
+        arch= fopen(mk->path.c_str(), "rb+");
+        fseek(arch, start, SEEK_SET);
+        partition logica;
+        int startlogic = start;
+        while ( fread(&logica, sizeof(partition), 1, arch)){
+                if ( logica.part_name == mk ->name){
+                    if ( mk -> borrar == "fast"){
+                        std::cout << "fast delete\n";
+                        return;
+                    } else if ( mk -> borrar == "full"){
+                        int tamelim = logica.part_size;
+                        std::cout << "full delete\n";
+                        fseek(arch,logica.part_start,SEEK_SET);
+                        char n = '\0';
+                        for (int i = 0; i < tamelim; i++){
+                            fwrite(&n, sizeof(n), 1,arch);
+                        }
+                    }
+                    fseek(arch, startlogic, SEEK_SET);
+                    logica.part_size = 0;
+                    fwrite(&logica, sizeof(partition), 1,arch);
+                    fclose(arch);
+                    std::cout << "particion logica creada\n";
+                    return;
+                } else{
+                    startlogic = logica.part_next;
+                    fseek(arch, logica.part_next, SEEK_SET);
+                }
         }
-
-        escribirmbr(disk, mk->path.c_str());
-        std::cout << "delete completado\n";
-
+        std::cout << "no existe la particion logica\n";
     }
     else{
         printf("comando add, delete o crear no reconocido\n");

@@ -5,6 +5,7 @@
 class Parse{
     public:
         static void selector(int num, char **comandos);
+        static void exec(int num, char **comandos);
 };
 
 #endif
