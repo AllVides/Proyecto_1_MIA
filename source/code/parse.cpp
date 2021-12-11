@@ -31,6 +31,11 @@ void Parse::selector(int num, char **comandos)
    }else if (strcmp("exec", comandos[1]) == 0){
           printf("hola exec\n");
           exec(num, comandos);
+   }else if (strcmp("pause", comandos[1]) == 0){
+          printf("hola pausa\n");
+          cout << "presiona enter para continuar: \n";
+          int c;
+          cin >> c;
    }else{
         printf("fallo we, fallo\n");
    }
@@ -42,7 +47,6 @@ void Parse::exec (int num, char **command)
      std::string token;
      std::string delimiter = "~:~";
      std::string path = "";
-
      //este for es modelo de como se lleva a cabo el reconocimiento de opciones del comando
      for (int i = 2; i < num; i++){
           size_t pos = 0;
@@ -50,8 +54,13 @@ void Parse::exec (int num, char **command)
           pos = para.find(delimiter);
           token = para.substr(0, pos);
           para.erase(0, pos + delimiter.length());
-
+          int posi = 0;
+               while ((posi = para.find(' ')) != std::string::npos) {
+                    para.replace(posi, 1, "_");
+                    cout << para<<"\n";
+               }
           if (token == "-path"){
+               
                path = para;
           }else{
                std::cout << "comando no reconocido\n";
@@ -65,7 +74,29 @@ void Parse::exec (int num, char **command)
      // Use a while loop together with the getline() function to read the file line by line
      while (getline (ayo, lina)) {
           // Output the text from the file
+          if ( lina.back() == '\n' || lina.back() == '\r'){
+               lina = lina.substr(0, lina.length()-1 );
+          }
+          if (lina.empty()){
+               cout << "linea en blanco\n";
+               continue;
+          }
+          if ( !lina.empty() ){
+               if (lina.back() == '\r' || lina.back() == '\n'){
+                    lina = lina.substr(0, lina.length()-1);
+               }
+          }
+          if (lina.empty()){
+               cout << "linea en blanco\n";
+               continue;
+          }
+          if (lina[0] == '#' || (lina[0]=='/' && lina[1]=='/')){
+               cout<< lina << "\n";
+               continue;
+          }
           cout << lina;
+          std::string cmd = "./main " + lina;
+          system(cmd.c_str());
      }
 
 // Close the file

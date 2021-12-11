@@ -4,7 +4,7 @@
 class MyUtil {
     public:
         static char* aLower(char * palabra);
-
+        static bool IsSpace(char i);
         
 };
 #endif

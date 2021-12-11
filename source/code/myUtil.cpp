@@ -12,3 +12,7 @@ char* MyUtil::aLower(char *palabra)
     }
     return palabra;
 }
+
+bool MyUtil::IsSpace(char i){
+    return i == ' ';
+}

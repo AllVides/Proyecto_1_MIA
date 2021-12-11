@@ -25,8 +25,12 @@ void Disco::makedisk (char ** command, int num)
         pos = para.find(delimiter);
         token = para.substr(0, pos);
         para.erase(0, pos + delimiter.length());
-
+        int posi = 0;
+               while ((posi = para.find(' ')) != std::string::npos) {
+                    para.replace(posi, 1, "_");
+               }
         if (token == "-path"){
+            
             mk -> path = para;
 
         }else if (token == "-size"){
@@ -92,7 +96,7 @@ void Disco::createFile (MKDISK_PARAM *mk)
 
     if (arch == NULL)
     {
-        printf("archivo inexistente, y llegaste a un lugar raro");
+        printf("archivo inexistente, y llegaste a un lugar raro\n");
         exit(1);
     }
     char buffer[1024];
@@ -157,8 +161,12 @@ void Disco::removedisk (char** command, int num)
         pos = para.find(delimiter);
         token = para.substr(0, pos);
         para.erase(0, pos + delimiter.length());
-
+         int posi = 0;
+               while ((posi = para.find(' ')) != std::string::npos) {
+                    para.replace(posi, 1, "_");
+               }
         if (token == "-path"){
+           
             aux = para;
         } else {
             std::cout << "ERROR: parametro no permitido\n";
@@ -201,11 +209,12 @@ void displaymbr (mbr *cosa){
 }
 
 void displaypart (partition part)
-{
+{   std::cout << "particion\n";
     std::cout << part.part_status <<"\n";
     std::cout <<part.part_type <<"\n";
     std::cout <<part.part_fit <<"\n";
     std::cout <<part.part_start <<"\n";
+    std::cout <<part.part_next <<"\n";
     std::cout <<part.part_size <<"\n";
     std::cout <<part.part_name <<"\n";
 }

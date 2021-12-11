@@ -1,0 +1,18 @@
+rmdisk -path~:~"/home/allvides/mia/disco.dk"
+mkdisk -path~:~"/home/allvides/mia/disco.dk" -size~:~10 -unit~:~m -fit~:~bF
+//hola
+#adios
+#./main exec -path~:~pruebas.txt
+#rmdisk -path~:~"/home/allvides/mia s/disco.dk"
+
+
+fdisk -Size~:~300 -type~:~e -path~:~/home/allvides/mia/disco.dk -name~:~eee
+pause
+fdisk -Size~:~50 -type~:~l -path~:~/home/allvides/mia/disco.dk -name~:~lo1
+fdisk -Size~:~100 -type~:~l -path~:~/home/allvides/mia/disco.dk -name~:~lo2
+//fdisk -Size~:~100 -type~:~l -path~:~/home/allvides/mia/disco.dk -name~:~lo1 -delete~:~fast
+//fdisk -Size~:~100 -type~:~l -path~:~/home/allvides/mia/disco.dk -name~:~lo2 -add~:~50
+fdisk -Size~:~100 -type~:~l -path~:~/home/allvides/mia/disco.dk -name~:~lo3
+
+
+
