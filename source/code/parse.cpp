@@ -2,6 +2,7 @@
 #include "../include/myUtil.h"
 #include "../include/disco.h"
 #include "../include/formato.h"
+#include "../include/mount.h"
 #include <stdio.h>
 #include <cctype>
 #include <cstring>
@@ -36,6 +37,15 @@ void Parse::selector(int num, char **comandos)
           cout << "presiona enter para continuar: \n";
           int c;
           cin >> c;
+   }else if (strcmp("mount", comandos[1]) == 0){
+          printf("hola mount\n");
+          part_montar(num, comandos);
+   }else if (strcmp("unmount", comandos[1]) == 0){
+          printf("hola unmount\n");
+          desmontar(num, comandos);
+   }else if (strcmp("mkfs", comandos[1]) == 0){
+          printf("hola unmount\n");
+          desmontar(num, comandos);
    }else{
         printf("fallo we, fallo\n");
    }
@@ -78,7 +88,7 @@ void Parse::exec (int num, char **command)
                lina = lina.substr(0, lina.length()-1 );
           }
           if (lina.empty()){
-               cout << "linea en blanco\n";
+               cout << "\n";
                continue;
           }
           if ( !lina.empty() ){
@@ -87,11 +97,11 @@ void Parse::exec (int num, char **command)
                }
           }
           if (lina.empty()){
-               cout << "linea en blanco\n";
+               cout << "\n";
                continue;
           }
           if (lina[0] == '#' || (lina[0]=='/' && lina[1]=='/')){
-               cout<< lina << "\n";
+               cout<<"\033[92m" <<lina << "\033[0m\n";
                continue;
           }
           cout << lina;
