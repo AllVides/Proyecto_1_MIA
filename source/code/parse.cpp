@@ -3,6 +3,7 @@
 #include "../include/disco.h"
 #include "../include/formato.h"
 #include "../include/mount.h"
+#include "../include/filesis.h"
 #include <stdio.h>
 #include <cctype>
 #include <cstring>
@@ -44,8 +45,8 @@ void Parse::selector(int num, char **comandos)
           printf("hola unmount\n");
           desmontar(num, comandos);
    }else if (strcmp("mkfs", comandos[1]) == 0){
-          printf("hola unmount\n");
-          desmontar(num, comandos);
+          printf("hola mkfs\n");
+          makefs(num, comandos);
    }else{
         printf("fallo we, fallo\n");
    }

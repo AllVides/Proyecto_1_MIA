@@ -93,7 +93,8 @@ void montarpart(std::string path, std::string nombre){
             std::cout << "ya existe el disco\n";
             if (name == nombre){
                 std::cout << "ya esta montada\n";
-                break;
+                fclose(arch);
+                return;
             }
             bandera = true;
             letra = lista->lista[i].alias[2];
@@ -103,8 +104,8 @@ void montarpart(std::string path, std::string nombre){
                 activas = stoi(iox);
             }
         }else {
-            std::cout << "no hay vacias y no es el mismo disco\n";
-            if (alita != "" && alita.length() >2){
+            std::cout << "no hay vacias y no es el mismo disco "<< letra <<"\n";
+            if (alita != "" && alita[0] == 'v' && alita[1] == 'd'){
                 if(letra < (alita[2])){
                     letra = alita[2];
                 }
@@ -119,7 +120,7 @@ void montarpart(std::string path, std::string nombre){
         if (dis.empty()){
             std::cout << "asignando nueva\n";
             activas++;
-            if ( !bandera ) {letra = letra +1;}
+            if ( !bandera ) {letra += 1;}
             strcpy(lista->lista[i].disco, path.c_str());
             strcpy(lista->lista[i].nombre, nombre.c_str());
             lias = "vd" ;
@@ -212,6 +213,7 @@ void desmontar ( int num, char**command){
 }
 
 
+
 mbr * montar ( std::string path){
     //escritura en disco del mbr
     mbr * diskmbr;
@@ -221,12 +223,14 @@ mbr * montar ( std::string path){
         exit(1);
     fseek(arch, 0, SEEK_SET);
     fread(diskmbr, sizeof(mbr), 1, arch);
+    fclose(arch);
     return diskmbr;
 }
 
 int buscarpart (mbr * mbr, std::string nombre ){
     for (int i = 0; i < 4; i++){
         if ( mbr ->mbr_partition[i].part_name == nombre){
+            //aqui debo aumentar el conteo de mount del superbloque
             return true;
         }
     }
@@ -245,6 +249,8 @@ int buscarlogica (int pos, std::string path, mbr * mbr, std::string nombre){
     fread(&logica, sizeof(partition), 1, arch);
     do{
         if(logica.part_name == nombre){
+            //aqui modifico el superbloqe
+            fclose(arch);
             return 1;
         }else{
             //std::cout << "part logica actual\n";
@@ -254,5 +260,6 @@ int buscarlogica (int pos, std::string path, mbr * mbr, std::string nombre){
             fread(&logica, sizeof(partition), 1, arch);
         }
     }while ( startlogic != -1 );
+    fclose(arch);
     return -1;
 }

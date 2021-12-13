@@ -13,7 +13,9 @@ fdisk -Size~:~10 -type~:~l -path~:~/home/allvides/mia/disco.dk -name~:~lll
 mount -path~:~/home/allvides/mia/disco.dk -name~:~ppp
 mount -path~:~/home/allvides/mia/disco.dk -name~:~fff
 mount -path~:~/home/allvides/mia/disco.dk -name~:~lll
+fdisk -Size~:~300 -type~:~p -path~:~/home/allvides/mia/disco.dk -name~:~sss
 unmount -id~:~vda1
+mkfs -id~:~vda3
 #pause
 #fdisk -Size~:~50 -type~:~l -path~:~/home/allvides/mia/disco.dk -name~:~lo1
 #fdisk -Size~:~100 -type~:~l -path~:~/home/allvides/mia/disco.dk -name~:~lo2

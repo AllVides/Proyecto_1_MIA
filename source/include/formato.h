@@ -34,6 +34,7 @@ class Formato{
     mbr* obtenerMBR (FDISK_PARAM *mk);
     void definepart (mbr * disk, FDISK_PARAM* mk);
     void definelogic (mbr * disk, FDISK_PARAM* mk);
+    void writesb (FILE* arch, int posicion);
 
     //void createFile (MKDISK_PARAM *mk);
 

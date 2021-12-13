@@ -7,6 +7,7 @@
 #include "../include/myUtil.h"
 #include "../include/disco.h"
 #include "../include/formato.h"
+#include "../include/filesis.h"
 
 void Formato::formatdisk (char ** command, int num)
 {
@@ -569,7 +570,29 @@ void Formato::definelogic (mbr * disk, FDISK_PARAM* mk){
     }
 }
 
+void Formato::writesb (FILE * arch, int posicion){
+    sblock* superb = new sblock();
+    superb->s_fs_type = 2;//2 o 3
+    superb->s_in_count=0;//numero de inodos
+    superb->s_ib_count=0;//numero de bloques
+    superb->s_fb_count=0;//numero de bloques vacios
+    superb-> s_fi_count=0;//numero de nodos vacios
+    superb-> s_mtime =time(0);;//fecha ultimo montaje
+    superb->s_umtiem =time(0);;//fecha de unmount
+    superb->s_mnt_cout =0;//conteo de mount
+    superb->s_magic = 0xEF53;//numero magico
+    superb->s_in_size = sizeof(inode);//tama;o del inodo
+    superb->s_ib_size = 64;//tama;io del bloque
+    superb->s_first_in=0;//primer inodo libre
+    superb->s_first_ib=0;//primer bloque libre
+    superb->s_bm_inode_s= 0;//inicio del bitmap de inodos
+    superb->s_bm_iblock_s=0;//inicio del bitmap de bloques
+    superb->s_in_start=0;//inicio de inodos
+    superb->s_ib_start=0;//inicio de bloques
+    fseek(arch, posicion, SEEK_SET);
+    fwrite(superb, sizeof(sblock), 1, arch);
 
+}
 
 void freespace ( mbr * disk, espaciodis blancos[]){
     espaciodis aux[6];
