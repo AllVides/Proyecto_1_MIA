@@ -50,8 +50,13 @@ void Disco::makedisk (char ** command, int num)
             }
             mk -> f= para;
 
+        }else if (para[0] == '#' || para[0] == '/'){
+            std::cout<<"\033[92m" <<para << "\033[0m\n";
+            break;
+
         }else{
-            printf("tipo de parametro desconocido");
+            printf("tipo de parametro desconocido\n");
+            return;
         }
     
     }

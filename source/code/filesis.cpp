@@ -50,8 +50,13 @@ void makefs (int num, char ** command){
             }
             mk -> fs= para;
 
+        }else if (para[0] == '#' || para[0] == '/'){
+            std::cout<<"\033[92m" <<para << "\033[0m\n";
+            break;
+
         }else{
-            std::cout << "parametro no reconocido "<< token << "\n";
+            printf("tipo de parametro desconocido\n");
+            return;
         }
     
     }
@@ -67,24 +72,33 @@ void makefs (int num, char ** command){
     std::cout << "obtuvimos el mbr\n";
     buildfs(ruta, mbr);
     std::cout << "termino mkfs\n";
+    exit(0);
 
 }
 
 void buildfs (modisk ruta, mbr * disk)
 {
+    std::cout << "iniciamos buildfs "  << "\n";
     sblock* superb = new sblock();
-    partition f = getparticion (disk, ruta.nombre, ruta.disco);
+    std::cout << "creamos superbloque "  << "\n";
+    std::string r = ruta.disco;
+    std::string t = ruta.nombre;
+    std::cout << "se recupera una particion "  << "\n";
+    partition f = getparticion (disk, t, r);
+    displaypart(f);
     int nin = floor((f.part_size -sizeof(sblock))/(1+3+sizeof(inode)+3*(64)));
+    std::cout << "calculo el espacio " << nin << "\n";
     int inicio = f.part_start;
     char bmin[nin];
     char bmbl[3*nin];
+     std::cout << "declaro los bitmaps " << sizeof(bmin) << "\n";
     for(int i = 0; i<nin; i++){
         bmin[i]='0';
     }
     for(int i = 0; i<3*nin; i++){
         bmbl[i]='0';
     }
-
+    std::cout << "creo el superbloque " << "\n";
     superb->s_fs_type = 2;//2 o 3
     superb->s_in_count=nin;//numero de inodos
     superb->s_ib_count=nin*3;//numero de bloques
@@ -104,12 +118,13 @@ void buildfs (modisk ruta, mbr * disk)
     superb->s_ib_start=inicio + sizeof(sblock)+nin+3*nin+nin*sizeof(inode);//inicio de bloques
 
     FILE *arch;
-    arch= fopen(ruta.disco, "rb+");
+    std::cout << "abro el archivo " << r << "\n";
+    arch= fopen(r.c_str(), "rb+");
     fseek(arch, f.part_start, SEEK_SET);
     //fread(&f, sizeof(partition), 1, arch);
-    fwrite(superb, sizeof(sblock), 1, arch);
-    fwrite(bmin, sizeof(bmin),1, arch);
-    fwrite(bmbl, sizeof(bmbl),1, arch);
+    std::cout <<fwrite(superb, sizeof(sblock), 1, arch);
+    std::cout <<fwrite(bmin, sizeof(bmin),1, arch);
+    std::cout <<fwrite(bmbl, sizeof(bmbl),1, arch);
     fclose(arch);
     
     std::cout<<"file system created\n";
@@ -118,23 +133,22 @@ void buildfs (modisk ruta, mbr * disk)
 
 
 partition getparticion (mbr * disk, std::string nombre, std::string path){
-    partition part;
+    partition  part;
     //obtenemos posicion de la posicion de la particion
-    for(int i = 0; i < 0 ; i++){
+    for(int i = 0; i < 4 ; i++){
         if(disk->mbr_partition[i].part_name == nombre){
             part = disk->mbr_partition[i];
             return part;
         }
     }
     bool existe = false;
-    for(int i = 0; i < 0 ; i++){
+    for(int i = 0; i < 4 ; i++){
         if(disk->mbr_partition[i].part_type == 'e'){
             part = disk->mbr_partition[i];
             existe = true;
             break;
         }
     }
-    
     int startlogic = part.part_start;
     FILE *arch;
     arch= fopen(path.c_str(), "rb+");
@@ -143,6 +157,7 @@ partition getparticion (mbr * disk, std::string nombre, std::string path){
     do{
         if(part.part_name == nombre){
             //aqui modifico el superbloqe
+            
             break;
         }else{
             startlogic = part.part_next;
@@ -151,6 +166,7 @@ partition getparticion (mbr * disk, std::string nombre, std::string path){
         }
     }while ( startlogic != -1 );
     fclose(arch);
+    displaypart(part);
     return part;
 }
 

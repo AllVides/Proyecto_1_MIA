@@ -4,5 +4,5 @@
 int main(int argc, char * argv[])
 {
     Parse::selector(argc, argv);
-    return 0;
+    exit(0);
 }

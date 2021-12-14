@@ -31,8 +31,11 @@ void part_montar ( int num,char** command){
             ruta = para;
         } else if (token == "-name"){
             nombre = para;
-        }else {
-            std::cout << "ERROR: parametro no permitido\n";
+        }else if (para[0] == '#' || para[0] == '/'){
+            std::cout<<"\033[92m" <<para << "\033[0m\n";
+            break;
+        }else{
+            printf("tipo de parametro desconocido\n");
             return;
         }
     }
@@ -104,7 +107,7 @@ void montarpart(std::string path, std::string nombre){
                 activas = stoi(iox);
             }
         }else {
-            std::cout << "no hay vacias y no es el mismo disco "<< letra <<"\n";
+            //std::cout << "no hay vacias y no es el mismo disco "<< letra <<"\n";
             if (alita != "" && alita[0] == 'v' && alita[1] == 'd'){
                 if(letra < (alita[2])){
                     letra = alita[2];
@@ -219,8 +222,9 @@ mbr * montar ( std::string path){
     mbr * diskmbr;
     FILE *arch;
     arch= fopen(path.c_str(), "rb");
-    if (arch == NULL)
-        exit(1);
+    if (arch == NULL){
+        std::cout << "archivo inexistente";
+        exit(1);}
     fseek(arch, 0, SEEK_SET);
     fread(diskmbr, sizeof(mbr), 1, arch);
     fclose(arch);

@@ -109,7 +109,7 @@ void Parse::exec (int num, char **command)
           std::string cmd = "./main " + lina;
           system(cmd.c_str());
      }
-
+     cout<< "se termino el exec\n";
 // Close the file
      ayo.close(); 
 }

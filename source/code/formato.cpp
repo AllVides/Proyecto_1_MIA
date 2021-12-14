@@ -75,8 +75,12 @@ void Formato::formatdisk (char ** command, int num)
         }else if (token == "-add"){//pendiente de modificar
             mk -> agregar= stoi(para);
 
+        }else if (para[0] == '#' || para[0] == '/'){
+            std::cout<<"\033[92m" <<para << "\033[0m\n";
+            break;
         }else{
-            std::cout << "parametro no reconocido "<< token << "\n";
+            printf("tipo de parametro desconocido\n");
+            return;
         }
     
     }
