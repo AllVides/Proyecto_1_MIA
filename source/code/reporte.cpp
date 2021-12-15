@@ -80,7 +80,8 @@ void reporte(int num, char ** command){
     }else if (mk->name == "tree"){
         std::cout <<"proximamente\n";
     }else if (mk->name == "sb"){
-        
+        rep_sb(mk);
+        std::cout << "reporte de disk creado\n";
     }else if (mk->name == "file"){
         std::cout <<"proximamente\n";
     }else if (mk->name == "ls"){
@@ -157,14 +158,6 @@ void rep_mbr(REP_PARAM *mk){
         cuerpo += "<tr><td> part_next </td><td>" ;
         cuerpo+= std::to_string(part.part_next);
         cuerpo += "</td></tr>\n";
-
-        /*std::cout << part.part_status <<"\n";
-        //std::cout <<part.part_type <<"\n";
-        //std::cout <<part.part_fit <<"\n";
-        //std::cout <<part.part_start <<"\n";
-        //std::cout <<part.part_next <<"\n";
-        //std::cout <<part.part_size <<"\n";
-        //std::cout <<part.part_name <<"\n";*/
     }
     cuerpo += "</table>>]";
 
@@ -248,6 +241,10 @@ void rep_disk(REP_PARAM *mk){
     mbr * cosa=montar(ruta.disco);
     std::cout << "obtuvimos el mbr\n";
     int tamanio = cosa -> size;
+
+    int libre = cosa -> size;
+    float s;
+
     
     std::string encabezado = "digraph G {\n";
         encabezado +="rankdir=\"TB\";\n";
@@ -256,11 +253,16 @@ void rep_disk(REP_PARAM *mk){
         encabezado +="label=<<table border =\"1\" cellspacing=\"0\" cellpadding= \"4\"><tr>";
 
     std::string cuerpo = "";
+    partition algo;
+    bool existe = false;
     for( int i = 0; i < 4; i++){
         partition part = cosa -> mbr_partition[i];
         if( part.part_type == 'p'){
             cuerpo+="<td ROWSPAN=\"2\">";
             cuerpo+= part.part_name;
+            
+            cuerpo += "<br/>";
+            cuerpo += "PRIMARIA" ;
             cuerpo += "<br/>";
 
             cuerpo += "inicio: " ;
@@ -270,27 +272,66 @@ void rep_disk(REP_PARAM *mk){
             cuerpo += "size: " ;
             cuerpo+= std::to_string(part.part_size);
             cuerpo += "<br/>";
-            
+
+            libre -= part.part_size;
+
+            cuerpo += "%: " ;
+            s = part.part_size*100/tamanio;
+            cuerpo+= std::to_string(s);            
         }else {
-             cuerpo+="<td COLSPAN=\"2\">";
+            cuerpo+="<td COLSPAN=\"2\">\n";
             cuerpo+=  part.part_name;
-             cuerpo+="<hr>";
-            
-            partition algo = part;
-            bool existe = false;
-            if (algo.part_next != -1){
-                existe = true;
-            }
-            if(existe){
+            cuerpo += "<br/>";
+            cuerpo += "EXTENDIDA" ;
+            cuerpo += "<br/>";
+            cuerpo += "inicio: " ;
+            cuerpo+= std::to_string(part.part_start);
+            cuerpo += "<br/>";
+
+            cuerpo += "size: " ;
+            cuerpo+= std::to_string(part.part_size);
+            cuerpo += "<br/>";
+            algo = part;
+            libre -= part.part_size;
+
+            cuerpo += "%: " ;
+            s = part.part_size*100/tamanio;
+            cuerpo+= std::to_string(s);  
+           
+        }
+        cuerpo += "</td>\n";
+    }
+    cuerpo+="<td COLSPAN=\"2\">\n";
+    cuerpo += "Libre\n" ;
+    cuerpo += "%: " ;
+    s = libre*100/tamanio;
+    cuerpo+= std::to_string(s);   
+    cuerpo += "</td>\n";
+
+    
+    cuerpo += "</tr>\n";
+    cuerpo += "</table>>];\n";
+
+    tamanio = algo.part_size;
+    libre = algo.part_size;
+        if (algo.part_next != -1){
+            existe = true;
+        }
+        if(existe){
             int startlogic = algo.part_start;
+
+        cuerpo +=   "nodo1[ shape= plaintext\n";
+        cuerpo +="label=<<table border =\"1\" cellspacing=\"0\" cellpadding= \"4\"><tr>";
             FILE *arch;
             std::string path = ruta.disco;
             arch= fopen(path.c_str(), "rb");
             fseek(arch, startlogic, SEEK_SET);
             fread(&algo, sizeof(partition), 1, arch);
             do{
-               
+               cuerpo+="<td ROWSPAN=\"2\">";
                 cuerpo+= algo.part_name;
+                cuerpo += "<br/>";
+                cuerpo += "LOGICA" ;
                 cuerpo += "<br/>";
                 cuerpo += "inicio: " ;
                 cuerpo+= std::to_string(algo.part_start);
@@ -298,28 +339,151 @@ void rep_disk(REP_PARAM *mk){
                 cuerpo += "size: " ;
                 cuerpo+= std::to_string(algo.part_size);
                 cuerpo += "<br/>";
+                libre -= algo.part_size;
+
+                cuerpo += "%: " ;
+                s = algo.part_size*100/tamanio;
+                cuerpo+= std::to_string(s);   
+                cuerpo += "</td>\n";
                 startlogic = algo.part_next;
                 fseek(arch, algo.part_next, SEEK_SET);
                 fread(&algo, sizeof(partition), 1, arch);
         
             }while ( startlogic != -1 );
             fclose(arch);
-            }
-            cuerpo += " } } ";
         }
-        cuerpo += "</td>";
-        
 
-    }
-    cuerpo += "libre";
-    cuerpo += "\"];";
+    cuerpo+="<td COLSPAN=\"2\">\n";
+    cuerpo += "Libre" ;
+    cuerpo += "%: " ;
+    s = libre*100/tamanio;
+                cuerpo+= std::to_string(s);   
+    cuerpo += "</td>\n"; 
+
+
+    cuerpo += "</tr>\n";
+    cuerpo += "</table>>];\n";
+    cuerpo += "}";
     encabezado += cuerpo;
     createfile(mk, encabezado);
-    std::cout << "reporte mbr creado\n";
+    std::cout << "reporte disk creado\n";
+}
+
+void rep_sb(REP_PARAM *mk){
+    modisk ruta = getruta(mk -> id);
+    std::cout << "obtuvimos modisk\n"<< ruta.disco << "\n";
+    mbr * cosa=montar(ruta.disco);
+    std::cout << "obtuvimos el mbr\n";
+    partition uwu = getparticion(cosa, ruta.nombre, ruta.disco);
+    std::cout << "obtuvimos el particion\n";
+    sblock bloq = getsb(uwu, ruta.disco);
+    std::cout << "obtuvimos el superbloque\n";
+
+    if(bloq.s_magic != 0xEF53){
+        return;
+    }
+
+    std::string encabezado = "digraph G {\n";
+        encabezado +="rankdir=\"TB\";\n";
+        encabezado +="node [shape=box];\n";
+        encabezado +="nodo0[shape= plaintext\n";
+        encabezado +="label=<<table border =\"1\" cellspacing=\"0\">\n";
+
+    std::string cuerpo = "<tr><td> filesys type </td><td>";
+    cuerpo += std::to_string(bloq.s_fs_type);
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> num inodos </td><td>" ;
+    cuerpo+= std::to_string(bloq.s_in_count);
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> num bloques </td><td>" ;
+    cuerpo+= std::to_string(bloq.s_ib_count);
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> num bloques vacios </td><td>" ;
+    cuerpo+= std::to_string(bloq.s_fb_count);
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> num inodos vacios </td><td>" ;
+    cuerpo+= std::to_string(bloq.s_fi_count);
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> hora montaje </td><td>" ;
+    cuerpo += asctime(localtime(&bloq.s_mtime));
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> hora de desmontaje </td><td>" ;
+    cuerpo += asctime(localtime(&bloq.s_umtiem));
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> num de montajes </td><td>" ;
+    cuerpo+= std::to_string(bloq.s_mnt_cout);
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> magic </td><td>" ;
+    cuerpo+= std::to_string(bloq.s_magic);
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> size inodo </td><td>" ;
+    cuerpo+= std::to_string(bloq.s_in_size);
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> size bloque </td><td>" ;
+    cuerpo+= std::to_string(bloq.s_ib_size);
+    cuerpo += "</td></tr>\n";
+    
+    cuerpo += "<tr><td> primer inodo libre </td><td>" ;
+    cuerpo+= std::to_string(bloq.s_first_in);
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> primer ibloque libre </td><td>" ;
+    cuerpo+= std::to_string(bloq.s_first_ib);
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> inicio bitmap inodos </td><td>" ;
+    cuerpo+= std::to_string(bloq.s_bm_inode_s);
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> inicio bitmap ibloques </td><td>" ;
+    cuerpo+= std::to_string(bloq.s_bm_iblock_s);
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> inicio inodos </td><td>" ;
+    cuerpo+= std::to_string(bloq.s_in_start);
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> inicio ibloques </td><td>" ;
+    cuerpo+= std::to_string(bloq.s_ib_start);
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "</table>>]";
+
+    cuerpo += "}";
+    encabezado += cuerpo;
+    createfile(mk, encabezado);
+    std::cout << "reporte superbloque creado\n";
+
+
 }
 
 
-
+sblock getsb(partition part, std::string path){
+    sblock bloq;
+    //obtenemos posicion de la posicion de la particio
+    int startlogic = part.part_start;
+    FILE *arch;
+    arch= fopen(path.c_str(), "rb");
+    if (arch == NULL){
+        std::cout << "sucedio un error, no se pudo recuperar el archivo\n";
+        return bloq;
+    }
+    fseek(arch, startlogic, SEEK_SET);
+    fread(&bloq, sizeof(sblock), 1, arch);
+    //superb->s_magic = 0xEF53;//numero magico
+    fclose(arch);
+    return bloq;
+}
 
 void createdir (REP_PARAM *mk)
 {

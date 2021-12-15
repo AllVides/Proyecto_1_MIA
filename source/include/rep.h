@@ -22,6 +22,7 @@ void rep_bmb(REP_PARAM *mk);
 ///utilidades
 void createdir(REP_PARAM *mk);
 void createfile(REP_PARAM *mk, std::string contenido);
+sblock getsb(partition part, std::string path);
 
 
 #endif
