@@ -251,29 +251,30 @@ void rep_disk(REP_PARAM *mk){
     
     std::string encabezado = "digraph G {\n";
         encabezado +="rankdir=\"TB\";\n";
-        encabezado +="node [shape=record];\n";
-        encabezado +="nodo0[\n";
-        encabezado +="label=\"";
+        encabezado +="node [shape=box];\n";
+        encabezado +="nodo0[ shape= plaintext\n";
+        encabezado +="label=<<table border =\"1\" cellspacing=\"0\" cellpadding= \"4\"><tr>";
 
-    std::string cuerpo = "MBR  |  ";
+    std::string cuerpo = "";
     for( int i = 0; i < 4; i++){
         partition part = cosa -> mbr_partition[i];
         if( part.part_type == 'p'){
+            cuerpo+="<td ROWSPAN=\"2\">";
             cuerpo+= part.part_name;
-            cuerpo += "&#92;n";
+            cuerpo += "<br/>";
 
             cuerpo += "inicio: " ;
             cuerpo+= std::to_string(part.part_start);
-            cuerpo += "&#92;n";
+            cuerpo += "<br/>";
 
             cuerpo += "size: " ;
             cuerpo+= std::to_string(part.part_size);
-            cuerpo += "&#92;n";
+            cuerpo += "<br/>";
             
         }else {
-            cuerpo+=" { ";
+             cuerpo+="<td COLSPAN=\"2\">";
             cuerpo+=  part.part_name;
-            cuerpo+=" | { ";
+             cuerpo+="<hr>";
             
             partition algo = part;
             bool existe = false;
@@ -288,15 +289,15 @@ void rep_disk(REP_PARAM *mk){
             fseek(arch, startlogic, SEEK_SET);
             fread(&algo, sizeof(partition), 1, arch);
             do{
+               
                 cuerpo+= algo.part_name;
-                cuerpo += "&#92;n";
+                cuerpo += "<br/>";
                 cuerpo += "inicio: " ;
                 cuerpo+= std::to_string(algo.part_start);
-                cuerpo += "&#92;n";
+                cuerpo += "<br/>";
                 cuerpo += "size: " ;
                 cuerpo+= std::to_string(algo.part_size);
-                cuerpo += "&#92;n";
-                cuerpo += " | ";
+                cuerpo += "<br/>";
                 startlogic = algo.part_next;
                 fseek(arch, algo.part_next, SEEK_SET);
                 fread(&algo, sizeof(partition), 1, arch);
@@ -306,10 +307,11 @@ void rep_disk(REP_PARAM *mk){
             }
             cuerpo += " } } ";
         }
-        cuerpo += " | ";
-        cuerpo += "libre";
+        cuerpo += "</td>";
+        
 
     }
+    cuerpo += "libre";
     cuerpo += "\"];";
     encabezado += cuerpo;
     createfile(mk, encabezado);
