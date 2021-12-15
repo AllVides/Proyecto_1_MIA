@@ -4,6 +4,7 @@
 #include "../include/formato.h"
 #include "../include/mount.h"
 #include "../include/filesis.h"
+#include "../include/rep.h"
 #include <stdio.h>
 #include <cctype>
 #include <cstring>
@@ -47,6 +48,9 @@ void Parse::selector(int num, char **comandos)
    }else if (strcmp("mkfs", comandos[1]) == 0){
           printf("hola mkfs\n");
           makefs(num, comandos);
+   }else if (strcmp("rep", comandos[1]) == 0){
+          printf("hola reporte\n");
+          reporte(num, comandos);
    }else{
         printf("fallo we, fallo\n");
    }

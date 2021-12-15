@@ -12,11 +12,16 @@ typedef struct REP_PARAM {
         /* Otros commandos a implementar */
     } REP_PARAM;
 
-void rep_disk();
-void rep_mbr();
-void rep_sb();
-void rep_bmi();
-void rep_bmb();
+void reporte(int num, char ** command);
+void rep_disk(REP_PARAM *mk);
+void rep_mbr(REP_PARAM *mk);
+void rep_sb(REP_PARAM *mk);
+void rep_bmi(REP_PARAM *mk);
+void rep_bmb(REP_PARAM *mk);
+
+///utilidades
+void createdir(REP_PARAM *mk);
+void createfile(REP_PARAM *mk, std::string contenido);
 
 
 #endif

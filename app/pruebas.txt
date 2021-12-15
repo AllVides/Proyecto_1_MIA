@@ -2,7 +2,7 @@
 //mkdisk -path~:~"/home/allvides/mia/disco.dk" -size~:~10 -unit~:~m -fit~:~bF
 //hola
 #adios
-#./main exec -path~:~pruebas.txt
+#sudo ./main exec -path~:~pruebas.txt
 #./main exec -path~:~entrada.sh
 #rmdisk -path~:~"/home/allvides/mia s/disco.dk"
 
@@ -103,3 +103,7 @@ mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part25 #vdb14 Debe dar er
 unmount -id~:~vda4
 #Desmontar Error
 unmount -id~:~vdx1
+#reportes
+rep -id~:~vda1 -Path~:~/home/archivos/faseU/reportes/rep1/mbr1.png -name~:~mbr
+rep -id~:~vda1 -Path~:~/home/archivos/faseU/reportes/rep1/disk1.png -name~:~disk
+rep -id~:~vdb1 -Path~:~/home/archivos/faseU/reportes/rep1/mbr4.png -name~:~mbr

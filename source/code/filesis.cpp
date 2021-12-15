@@ -180,7 +180,7 @@ modisk getruta (std::string id)
     if (arch == NULL)
     {
         std::cout << "error no existe ninguna particion montada\n";
-        return ruta;
+        exit(0);
     }
     fseek(arch, 0, SEEK_SET);
     fread(lista,sizeof(lmo), 1, arch);

@@ -5,6 +5,8 @@
 #include <sys/stat.h>
 #include <algorithm>
 #include <cmath>
+#include <iostream>
+#include <fstream>
 #include "../include/myUtil.h"
 #include "../include/disco.h"
 #include "../include/formato.h"
@@ -60,9 +62,11 @@ void reporte(int num, char ** command){
 
     //dot -Kdot -Tpng sample.dot  -o sample.png 
     if (mk->name == "mbr"){
-
+        rep_mbr(mk);
+        std::cout << "reporte de mbr creado\n";
     }else if (mk->name == "disk"){
-        
+        rep_disk(mk);
+        std::cout << "reporte de disk creado\n";
     }else if (mk->name == "inode"){
         std::cout <<"proximamente\n";
     }else if (mk->name == "journaling"){
@@ -85,4 +89,261 @@ void reporte(int num, char ** command){
         std::cout <<"comando no encontrado\n";
         return;
     }
+}
+
+
+///////////reporte de mbr ////////////////////////////////
+
+void rep_mbr(REP_PARAM *mk){
+    std::string encabezado = "digraph G {\n";
+        encabezado +="rankdir=\"TB\";\n";
+        encabezado +="node [shape=box];\n";
+        encabezado +="nodo0[shape= plaintext\n";
+        encabezado +="label=<<table border =\"1\" cellspacing=\"0\">\n";
+
+    
+
+    modisk ruta = getruta(mk -> id);
+    std::cout << "obtuvimos modisk\n"<< ruta.disco << "\n";
+    mbr * cosa=montar(ruta.disco);
+    std::cout << "obtuvimos el mbr\n";
+
+
+    std::string cuerpo = "<tr><td> fit </td><td>";
+    cuerpo += cosa->disk_fit;
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> hora de creacion </td><td>" ;
+    cuerpo += asctime(localtime(&cosa->hora));
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> disk_signature </td><td>" ;
+    cuerpo += std::to_string(cosa->mbr_disk_signature);
+    cuerpo += "</td></tr>\n";
+
+    cuerpo += "<tr><td> disk_size </td><td>" ;
+    cuerpo+= std::to_string(cosa->size);
+    cuerpo += "</td></tr>\n";
+
+    for( int i = 0; i < 4; i++){
+        partition part = cosa -> mbr_partition[i];
+        cuerpo += "<tr><td ROWSPAN= \"2\">Particion"+std::to_string(i);
+        cuerpo+="</td></tr>\n";
+
+        cuerpo += "<tr><td> part_status </td><td>" ;
+        cuerpo+= std::to_string(part.part_status);
+        cuerpo += "</td></tr>\n";
+
+        cuerpo += "<tr><td> part_type </td><td>" ;
+        cuerpo+= part.part_type;
+        cuerpo += "</td></tr>\n";
+        
+        cuerpo += "<tr><td> part_name </td><td>" ;
+        cuerpo+= part.part_name;
+        cuerpo += "</td></tr>\n";
+
+        cuerpo += "<tr><td> part_fit </td><td>" ;
+        cuerpo+= part.part_fit;
+        cuerpo += "</td></tr>\n";
+
+        cuerpo += "<tr><td> part_start </td><td>" ;
+        cuerpo+= std::to_string(part.part_start);
+        cuerpo += "</td></tr>\n";
+
+        cuerpo += "<tr><td> part_size </td><td>" ;
+        cuerpo+= std::to_string(part.part_size);
+        cuerpo += "</td></tr>\n";
+
+        cuerpo += "<tr><td> part_next </td><td>" ;
+        cuerpo+= std::to_string(part.part_next);
+        cuerpo += "</td></tr>\n";
+
+        /*std::cout << part.part_status <<"\n";
+        //std::cout <<part.part_type <<"\n";
+        //std::cout <<part.part_fit <<"\n";
+        //std::cout <<part.part_start <<"\n";
+        //std::cout <<part.part_next <<"\n";
+        //std::cout <<part.part_size <<"\n";
+        //std::cout <<part.part_name <<"\n";*/
+    }
+    cuerpo += "</table>>]";
+
+    bool existe = false;
+    partition algo;
+    for( int i = 0; i < 4; i++){
+        if(cosa->mbr_partition[i].part_type == 'e'){
+            algo = cosa->mbr_partition[i];
+            if (algo.part_next != -1){
+                existe = true;
+            }
+            
+            break;
+        }
+    }
+    if (existe){
+        int startlogic = algo.part_start;
+        FILE *arch;
+        std::string path = ruta.disco;
+        arch= fopen(path.c_str(), "rb");
+        fseek(arch, startlogic, SEEK_SET);
+        fread(&algo, sizeof(partition), 1, arch);
+        int i = 0;
+        do{
+
+        cuerpo+= "nodo"+std::to_string(i+1);
+        cuerpo+= "[shape= plaintext label=<<table border =\"1\" cellspacing=\"0\">";
+
+        cuerpo += "<tr><td ROWSPAN= \"2\">Logica"+std::to_string(i);
+        cuerpo+="</td></tr>\n";
+
+        cuerpo += "<tr><td> part_status </td><td>" ;
+        cuerpo+= std::to_string(algo.part_status);
+        cuerpo += "</td></tr>\n";
+
+        cuerpo += "<tr><td> part_type </td><td>" ;
+        cuerpo+= algo.part_type;
+        cuerpo += "</td></tr>\n";
+        
+        cuerpo += "<tr><td> part_name </td><td>" ;
+        cuerpo+= algo.part_name;
+        cuerpo += "</td></tr>\n";
+
+        cuerpo += "<tr><td> part_fit </td><td>" ;
+        cuerpo+= algo.part_fit;
+        cuerpo += "</td></tr>\n";
+
+        cuerpo += "<tr><td> part_start </td><td>" ;
+        cuerpo+= std::to_string(algo.part_start);
+        cuerpo += "</td></tr>\n";
+
+        cuerpo += "<tr><td> part_size </td><td>" ;
+        cuerpo+= std::to_string(algo.part_size);
+        cuerpo += "</td></tr>\n";
+
+        cuerpo += "<tr><td> part_next </td><td>" ;
+        cuerpo+= std::to_string(algo.part_next);
+        cuerpo += "</td></tr>\n";
+        cuerpo += "</table>>]";
+
+        i++;
+        startlogic = algo.part_next;
+        fseek(arch, algo.part_next, SEEK_SET);
+        fread(&algo, sizeof(partition), 1, arch);
+        
+        }while ( startlogic != -1 );
+        fclose(arch);
+    }
+
+    cuerpo += "}";
+    encabezado += cuerpo;
+    createfile(mk, encabezado);
+    std::cout << "reporte mbr creado\n";
+
+}
+
+//////////reporte disk///////////////////////////////////
+void rep_disk(REP_PARAM *mk){
+    modisk ruta = getruta(mk -> id);
+    std::cout << "obtuvimos modisk\n"<< ruta.disco << "\n";
+    mbr * cosa=montar(ruta.disco);
+    std::cout << "obtuvimos el mbr\n";
+    int tamanio = cosa -> size;
+    
+    std::string encabezado = "digraph G {\n";
+        encabezado +="rankdir=\"TB\";\n";
+        encabezado +="node [shape=record];\n";
+        encabezado +="nodo0[\n";
+        encabezado +="label=\"";
+
+    std::string cuerpo = "MBR  |  ";
+    for( int i = 0; i < 4; i++){
+        partition part = cosa -> mbr_partition[i];
+        if( part.part_type == 'p'){
+            cuerpo+= part.part_name;
+            cuerpo += "&#92;n";
+
+            cuerpo += "inicio: " ;
+            cuerpo+= std::to_string(part.part_start);
+            cuerpo += "&#92;n";
+
+            cuerpo += "size: " ;
+            cuerpo+= std::to_string(part.part_size);
+            cuerpo += "&#92;n";
+            
+        }else {
+            cuerpo+=" { ";
+            cuerpo+=  part.part_name;
+            cuerpo+=" | { ";
+            
+            partition algo = part;
+            bool existe = false;
+            if (algo.part_next != -1){
+                existe = true;
+            }
+            if(existe){
+            int startlogic = algo.part_start;
+            FILE *arch;
+            std::string path = ruta.disco;
+            arch= fopen(path.c_str(), "rb");
+            fseek(arch, startlogic, SEEK_SET);
+            fread(&algo, sizeof(partition), 1, arch);
+            do{
+                cuerpo+= algo.part_name;
+                cuerpo += "&#92;n";
+                cuerpo += "inicio: " ;
+                cuerpo+= std::to_string(algo.part_start);
+                cuerpo += "&#92;n";
+                cuerpo += "size: " ;
+                cuerpo+= std::to_string(algo.part_size);
+                cuerpo += "&#92;n";
+                cuerpo += " | ";
+                startlogic = algo.part_next;
+                fseek(arch, algo.part_next, SEEK_SET);
+                fread(&algo, sizeof(partition), 1, arch);
+        
+            }while ( startlogic != -1 );
+            fclose(arch);
+            }
+            cuerpo += " } } ";
+        }
+        cuerpo += " | ";
+        cuerpo += "libre";
+
+    }
+    cuerpo += "\"];";
+    encabezado += cuerpo;
+    createfile(mk, encabezado);
+    std::cout << "reporte mbr creado\n";
+}
+
+
+
+
+void createdir (REP_PARAM *mk)
+{
+    std::string s = mk -> path;
+    std::string delimiter = "/";
+
+    size_t i = 0;
+    std::string token;
+    std::string dir = "";
+    while ((i = s.find(delimiter)) != std::string::npos) {
+        token = s.substr(0, i);
+        dir += "/"+token;
+        s.erase(0, i + delimiter.length());
+    }
+    std::string camino = "mkdir -p " + dir;
+    system(camino.c_str());
+}
+
+void createfile(REP_PARAM *mk, std::string contenido){
+    createdir (mk);
+    std::string ruta = mk->path + ".dot";
+    std::ofstream file;
+    file.open(ruta.c_str());
+    file << contenido;
+    file.close();
+    std::string eje = "sudo dot -Tpng " + ruta + " -o " + mk->path; 
+    system(eje.c_str());
+    std::cout << "reporte creado\n";
 }
