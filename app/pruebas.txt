@@ -25,85 +25,42 @@
 #fdisk -Size~:~100 -type~:~l -path~:~/home/allvides/mia/disco.dk -name~:~lo3
 
 
-#Contenido de calificacion.sh
-#Crea 5 discos de 50 Mb
-
+#Crea 2 discos
 #CREANDO DISCOS ----------------------------------------------------------------------------------------
-mkdisk -size~:~50 -unit~:~M -path~:~/home/archivos/faseU/Disco1.disk
-mkdisk -unit~:~K -size~:~51200 -path~:~/home/archivos/faseU/Disco2.disk
-mkDisk -size~:~10 -path~:~/home/archivos/faseU/Disco4.disk -unit~:~k
-mkdisk -size~:~51200 -unit~:~k -path~:~"/home/archivos/faseU/misarchivos/Disco3.disk"
-mkdisk -size~:~51200 -unit~:~k -path~:~"/home/archivos/faseU/misarchivos/mario/Escritorio/Disco5.disk"
-
-#Debería dar error
-mkDisk -param~:~x -size~:~30 -path~:~/home/archivos/faseU/Disco4.disk
-
-#ELIMINANDO DISCOS ------------------------------------------------------------------------------------
-#Elimina un D, el primero debería dar error
-rmDisk -path~:~/home/Disco4.disk
-rmDisk -path~:~/home/archivos/faseU/Disco2.disk
-rmDisk -path~:~"/home/archivos/faseU/mis mario/Escritorio/Disco3.disk"
+mkdisk -size~:~75 -unit~:~M -path~:~/home/archivos/faseU/Disco1.disk -fit~:~FF
+mkdisk -unit~:~K -size~:~51200 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~FF
 
 #CREANDO PARTICIONES ----------------------------------------------------------------------------------
 #Crear particiones Disco1.disk
-fdisk -type~:~P -unit~:~K -name~:~Part1 -size~:~7680 -path~:~/home/archivos/faseU/Disco1.disk -fit~:~BF
-fdisk -type~:~E -unit~:~K -name~:~Part2 -size~:~7680 -path~:~/home/archivos/faseU/Disco1.disk -fit~:~WF
-fdisk -type~:~E -unit~:~K -name~:~Part3 -size~:~7680 -path~:~/home/archivos/faseU/Disco1.disk -fit~:~WF #Debe dar error por que ya existe una extendida
-fdisk -type~:~P -unit~:~K -name~:~Part3 -size~:~7680 -path~:~/home/archivos/faseU/Disco1.disk -fit~:~WF
-fdisk -type~:~P -unit~:~K -name~:~Part4 -size~:~7680 -path~:~/home/archivos/faseU/Disco1.disk -fit~:~BF
-fdisk -type~:~L -unit~:~K -name~:~Part5 -size~:~1200 -path~:~/home/archivos/faseU/Disco1.disk -fit~:~BF
-fdisk -type~:~L -unit~:~K -name~:~Part6 -size~:~1200 -path~:~/home/archivos/faseU/Disco1.disk -fit~:~BF
-fdisk -type~:~L -unit~:~K -name~:~Part7 -size~:~1200 -path~:~/home/archivos/faseU/Disco1.disk -fit~:~WF
-fdisk -type~:~L -unit~:~K -name~:~Part8 -size~:~1200 -path~:~/home/archivos/faseU/Disco1.disk -fit~:~WF
-fdisk -type~:~L -unit~:~K -name~:~Part9 -size~:~1200 -path~:~/home/archivos/faseU/Disco1.disk -fit~:~BF
-fdisk -type~:~L -unit~:~K -name~:~Part10 -size~:~1680 -path~:~/home/archivos/faseU/Disco1.disk -fit~:~BF
+fdisk -type~:~P -unit~:~M -name~:~Part1 -size~:~20 -path~:~/home/archivos/faseU/Disco1.disk -fit~:~FF
+fdisk -type~:~P -unit~:~M -name~:~Part2 -size~:~15 -path~:~/home/archivos/faseU/Disco1.disk -fit~:~FF
+fdisk -type~:~P -unit~:~M -name~:~Part3 -size~:~20 -path~:~/home/archivos/faseU/Disco1.disk -fit~:~FF
 
 #Crear particiones Disco2.disk
-fdisk -type~:~L -unit~:~K -name~:~Part28 -size~:~7680 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~WF #Debe dar error porque no existe una extendida
-fdisk -type~:~L -unit~:~K -name~:~Part27 -size~:~7680 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~WF #Debe dar error porque no existe una extendida
-fdisk -type~:~P -unit~:~K -name~:~Part12 -size~:~4680 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~BF
-fdisk -type~:~P -unit~:~K -name~:~Part13 -size~:~4680 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~WF
-fdisk -type~:~P -unit~:~K -name~:~Part14 -size~:~4680 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~BF
-fdisk -type~:~E -unit~:~K -name~:~Part15 -size~:~17360 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~WF
-fdisk -type~:~L -unit~:~K -name~:~Part16 -size~:~1200 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~BF
-fdisk -type~:~L -unit~:~K -name~:~Part17 -size~:~1200 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~BF
-fdisk -type~:~L -unit~:~K -name~:~Part18 -size~:~1200 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~WF
-fdisk -type~:~L -unit~:~K -name~:~Part19 -size~:~1200 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~WF
-fdisk -type~:~L -unit~:~K -name~:~Part20 -size~:~1200 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~BF
-fdisk -type~:~L -unit~:~K -name~:~Part21 -size~:~1200 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~BF
-fdisk -type~:~L -unit~:~K -name~:~Part22 -size~:~1200 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~BF
-fdisk -type~:~L -unit~:~K -name~:~Part23 -size~:~1200 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~BF
-fdisk -type~:~L -unit~:~K -name~:~Part24 -size~:~1200 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~BF
+fdisk -type~:~P -unit~:~M -name~:~Part1_D2 -size~:~20 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~FF
+fdisk -type~:~P -unit~:~M -name~:~Part2_D2 -size~:~10 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~FF
+fdisk -type~:~P -unit~:~M -name~:~Part3_D2 -size~:~10 -path~:~/home/archivos/faseU/Disco2.disk -fit~:~FF
 
-#Monta las particiones Disco1.disk
+#Monta las particiones
+
 mount -path~:~/home/archivos/faseU/Disco1.disk -name~:~Part1 #vda1
-mount -path~:~/home/archivos/faseU/Disco1.disk -name~:~Part1 #Error ya esta montada
-mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part9 #Debe dar error por que no existe
-mount -path~:~/home/archivos/faseU/Disco1.disk -name~:~Part8 #vda2
-mount -path~:~/home/archivos/faseU/Disco1.disk -name~:~Part7 #vda3
-mount -path~:~/home/archivos/faseU/Disco1.disk -name~:~Part6 #vda4
-mount -path~:~/home/archivos/faseU/Disco1.disk -name~:~Part2 #vda5
-mount -path~:~/home/archivos/faseU/Disco1.disk -name~:~Part3 #vda6
-mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part12 #vdb1
-mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part13 #vdb2
-mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part14 #vdb3
-mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part15 #vdb4
-mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part16 #vdb5
-mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part17 #vdb6
-mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part18 #vdb7
-mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part19 #vdb8
-mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part20 #vdb9
-mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part21 #vdb10
-mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part22 #vdb11
-mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part23 #vdb12
-mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part24 #vdb13
-mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part25 #vdb14 Debe dar error por qu no existe
+mount -path~:~/home/archivos/faseU/Disco1.disk -name~:~Part2 #vda2
+mount -path~:~/home/archivos/faseU/Disco1.disk -name~:~Part3 #vda3
 
-#Desmontar las particiones
-unmount -id~:~vda4
-#Desmontar Error
-unmount -id~:~vdx1
-#reportes
-rep -id~:~vda1 -Path~:~/home/archivos/faseU/reportes/rep1/mbr1.png -name~:~mbr
-rep -id~:~vda1 -Path~:~/home/archivos/faseU/reportes/rep1/disk1.png -name~:~disk
-rep -id~:~vdb1 -Path~:~/home/archivos/faseU/reportes/rep1/mbr4.png -name~:~mbr
+mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part1_D2 #vdb1
+mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part2_D2 #vdb2
+mount -path~:~/home/archivos/faseU/Disco2.disk -name~:~Part3_D2 #vdb3
+
+#Crea el sistema de archivos en todas las particiones primarias
+#fast reescribe el superbloque
+#full poner /0 y luego reescribir el superbloque
+
+mkfs -type~:~fast -id~:~vda1 -fs~:~3fs
+mkfs -type~:~full -id~:~vda2 -fs~:~3fs
+mkfs -type~:~fast -id~:~vda3 -fs~:~3fs
+
+#Reporte1 ::::(  )
+rep -id~:~vda1 -Path~:~"/home/archivos/reports2/reporte1_vda1_sb.pdf" -name~:~sb
+#rep -id~:~vda1 -Path~:~"/home/archivos/reports2/reporte1_vda1_tree.jpg" -name~:~tree
+
+pause
