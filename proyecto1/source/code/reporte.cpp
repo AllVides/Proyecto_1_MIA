@@ -74,9 +74,9 @@ void reporte(int num, char ** command){
     }else if (mk->name == "block"){
         std::cout <<"proximamente\n";
     }else if (mk->name == "bm_inode"){
-        
+        std::cout <<"proximamente\n";
     }else if (mk->name == "bm_block"){
-        
+        std::cout <<"proximamente\n";
     }else if (mk->name == "tree"){
         std::cout <<"proximamente\n";
     }else if (mk->name == "sb"){
