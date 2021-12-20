@@ -10,7 +10,7 @@
 
 ## Conteo de Registros
 
-![Conteo Registros](/image/conteoRegistros.png)
+![Conteo Registros](image/conteoRegistros.png)
 
 ## Respuestas a query segun orden del enunciado
 ![Querys 1 a 3](image/1a3.png)
