@@ -1,11 +1,11 @@
 # PRACTICA 1 MIA
 ### Omar Alejandro Vides Esteban - 201709146
 
-![Video] (https://youtu.be/Rv-ChgvWqso)
+[Video] (https://youtu.be/Rv-ChgvWqso)
 
 
 ## Diagramas
-![Diagrama Logico](/image/Logical.svg)
+[Diagrama Logico](/image/Logical.svg)
 ![Diagrama Relacional](/image/relacional.svg)
 
 ## Conteo de Registros
